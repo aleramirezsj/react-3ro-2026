@@ -1,11 +1,16 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
+import React from "react";
+import reactLogo from '../../assets/react.svg'
+import viteLogo from '../../assets/vite.svg'
+import heroImg from '../../assets/hero.png'
 import './App.css'
-import logoisp20 from './assets/logoisp20.png'
-import TodoItem from './TodoItem'
-import TodoCount from './TodoCount'
+import TodoItem from '../TodoItem/TodoItem'
+import TodoCounter from '../TodoCounter/TodoCounter'
+import TodoHeader from '../TodoHeader/TodoHeader'
+import TodoSearch from '../TodoSearch/TodoSearch'
+import CreateTodoButton from '../CreateTodoButton/CreateTodoButton'
+import TodoList from '../TodoList/TodoList'
+import {TodoContext} from '../TodoContext/TodoContext'
 
 function AppOriginal() {
   const [count, setCount] = useState(0)
@@ -123,16 +128,29 @@ function AppOriginal() {
 }
 
 export default function App() {
-  const imgStyle = { margin: "0 auto" }
+ const { 
+        tareasFiltradas, 
+        completeTodo, 
+        deleteTodo} = React.useContext(TodoContext)!;
+
   return (
     <>
-      <h1>Conociendo React</h1>
-      <img src={logoisp20} alt="Logo ISP20" width="200" height="200" style={imgStyle} />
-
-      <TodoCount completadas={1} total={5} />
-      <TodoItem texto="Comprar leche" />
-      <TodoItem texto="Hacer ejercicio" />
-      <TodoItem texto="Leer un libro" />
+      { console.log('Renderizando App') }
+      <TodoHeader />
+      <TodoCounter />
+      <TodoSearch />
+      <TodoList >
+        {tareasFiltradas.map((tarea) => (
+          <TodoItem
+            key={tarea.texto}
+            texto={tarea.texto}
+            completado={tarea.completado}
+            onCompleteTodo={() => completeTodo(tarea.texto)}
+            onDeleteTodo={() => deleteTodo(tarea.texto)}
+          />
+        ))}
+      </TodoList>
+      <CreateTodoButton />
 
     </>
   )
