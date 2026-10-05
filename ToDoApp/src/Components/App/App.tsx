@@ -11,6 +11,7 @@ import TodoSearch from '../TodoSearch/TodoSearch'
 import CreateTodoButton from '../CreateTodoButton/CreateTodoButton'
 import TodoList from '../TodoList/TodoList'
 import {TodoContext} from '../TodoContext/TodoContext'
+import Alumno from '../Alumno/Alumno';
 
 function AppOriginal() {
   const [count, setCount] = useState(0)
@@ -151,7 +152,7 @@ export default function App() {
         ))}
       </TodoList>
       <CreateTodoButton />
-
+      <Alumno />
     </>
   )
 }
