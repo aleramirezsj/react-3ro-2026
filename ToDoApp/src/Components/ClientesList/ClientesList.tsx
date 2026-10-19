@@ -1,25 +1,35 @@
-import useClientesApi from "../../Hooks/useClientesApi";
 import { useState } from "react";
 import Cliente from "../Cliente/Cliente";
 import AgregarEditarCliente from "../AgregarEditarCliente/AgregarEditarCliente";
 import { Card, Button, CardActions, CircularProgress, CardContent} from "@mui/material";
 import type ICliente from "../../Interfaces/ICliente";
+import { useClienteContext } from "../ClienteContext/ClienteContext";
 
  export default function ClientesList() {
-    const { clientes, eliminarCliente, agregarCliente, editarCliente, error } = useClientesApi();
-    const [openModal, setOpenModal] = useState(false);
-    const [clienteSeleccionado, setClienteSeleccionado] = useState<ICliente | null>(null);
-    console.log(clientes);
+    const { clientes,
+            cargando,
+            error,
+            agregarCliente,
+            editarCliente,
+            obtenerClientesEliminados,
+            obtenerClientes,
+            openModal,
+            setOpenModal,
+            verEliminados,
+            setVerEliminados,
+            clienteSeleccionado,
+            setClienteSeleccionado
+           } = useClienteContext();
+    
     return (
         <div>
             <h2>Lista de Clientes</h2>
-                {clientes.length === 0 && <CircularProgress aria-label="Loading…" />}
+                {cargando && <CircularProgress aria-label="Loading…" />}
+                {error && <p style={{ color: "red" }}>{error}</p>}
                 {clientes.map((cliente) => (
                         <Cliente key={cliente.id} 
                                 cliente={cliente} 
-                                eliminarCliente={eliminarCliente}
-                                setOpenModal={setOpenModal}
-                                setClienteSeleccionado={setClienteSeleccionado} />
+                                />
                 ))}
                 {openModal && (
                     <AgregarEditarCliente>
@@ -49,7 +59,7 @@ import type ICliente from "../../Interfaces/ICliente";
                               localidadId: 1,
                             };
                             if (clienteSeleccionado) {
-                              const clienteEditado = await editarCliente(clienteSeleccionado.id, { ...nuevoCliente, id: clienteSeleccionado.id });
+                              await editarCliente(clienteSeleccionado.id, { ...nuevoCliente, id: clienteSeleccionado.id });
                               setClienteSeleccionado(null);
                             } else {
                               await agregarCliente(nuevoCliente);
@@ -59,7 +69,6 @@ import type ICliente from "../../Interfaces/ICliente";
                             Guardar
                           </Button>
 
-                          {error && <p style={{ color: "red" }}>{error}</p>}
                           <Button variant="outlined" onClick={() => setOpenModal(false)}>
                             Cerrar
                           </Button>
@@ -68,6 +77,16 @@ import type ICliente from "../../Interfaces/ICliente";
                     </AgregarEditarCliente>
                 )}
                 <button onClick={() => setOpenModal(true)}>Agregar Cliente</button>
+                <button onClick={async () => {
+                     setVerEliminados(!verEliminados);
+                    if (verEliminados===false) {
+                        await obtenerClientesEliminados();
+                    } else {
+                        await obtenerClientes();
+                    }
+                }}>
+                    {verEliminados ? "Ver Clientes Activos" : "Ver Clientes Eliminados"}
+                </button>
 
         </div>
     );

@@ -6,6 +6,7 @@ import Button  from "@mui/material/Button";
 import Swal from "sweetalert2";
 import type { SweetAlertOptions } from "sweetalert2";
 import type ICliente  from "../../Interfaces/ICliente";
+import { useClienteContext } from "../ClienteContext/ClienteContext";
 
  const configDialogEliminar: SweetAlertOptions = {
                             title: "¿Estás seguro?",
@@ -16,17 +17,41 @@ import type ICliente  from "../../Interfaces/ICliente";
                             cancelButtonColor: "#d33",
                             confirmButtonText: "Sí, eliminarlo"
                         }
+ const configDialogRestaurar: SweetAlertOptions = {
+                            title: "¿Estás seguro?",
+                            text: "que deseas restaurar este cliente?",
+                            icon: "warning",
+                            showCancelButton: true,
+                            confirmButtonColor: "#3085d6",
+                            cancelButtonColor: "#d33",
+                            confirmButtonText: "Sí, restaurarlo"
+                        }
 
 
 
-export default function Cliente({ cliente, eliminarCliente, setOpenModal, setClienteSeleccionado }: 
-            { cliente: ICliente; eliminarCliente: (id: number) => void; 
-                                setOpenModal: (open: boolean) => void; 
-                                setClienteSeleccionado: (cliente: ICliente | null) => void }) {
+export default function Cliente({
+    cliente,
+}: {
+    cliente: ICliente;
+}) {
+    const { eliminarCliente, 
+            restaurarCliente, 
+            setOpenModal,
+            verEliminados,
+            setClienteSeleccionado
+         } = useClienteContext();
+
     const onEliminar=(id: number) => {
                         Swal.fire(configDialogEliminar).then((result) => {
                             if (result.isConfirmed) {
                                 eliminarCliente(id);
+                            }
+                        });
+                    }
+    const onRestaurar=(id: number) => {
+                        Swal.fire(configDialogRestaurar).then((result) => {
+                            if (result.isConfirmed) {
+                                restaurarCliente(id);
                             }
                         });
                     }
@@ -39,14 +64,25 @@ export default function Cliente({ cliente, eliminarCliente, setOpenModal, setCli
                 </CardContent>
 
                 <CardActions sx={{ justifyContent: "center" }}>
-                    <Button variant="contained" onClick={() => {
-                        setOpenModal(true); 
-                        setClienteSeleccionado(cliente)}}>
-                        Editar
-                    </Button>
-                    <Button variant="outlined" onClick={() => onEliminar(cliente.id)}>
-                        Eliminar
-                    </Button>
+                    {verEliminados && (
+                        <Button variant="contained" onClick={() => onRestaurar(cliente.id)}>
+                            Restaurar
+                        </Button>
+                    )}
+                    {!verEliminados && (
+                        <>
+                            <Button variant="contained" onClick={() => {
+                                setOpenModal(true);
+                                setClienteSeleccionado(cliente);
+                            }}>
+                                Editar
+                            </Button>
+
+                            <Button variant="outlined" onClick={() => onEliminar(cliente.id)}>
+                                Eliminar
+                            </Button>
+                        </>
+                    )}
                 </CardActions>
             </Card>
     );
